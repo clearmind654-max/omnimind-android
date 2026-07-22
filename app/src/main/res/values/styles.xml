@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.OmniMindAI" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">#0D0D11</item>
+        <item name="colorPrimaryVariant">#1A1A24</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="android:statusBarColor">#0D0D11</item>
+        <item name="android:navigationBarColor">#0D0D11</item>
+    </style>
+</resources>

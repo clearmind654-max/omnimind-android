@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>OmniMind AI v2.5</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app" class="app-container">
+        
+        <!-- Top App Navigation Header -->
+        <header class="app-header">
+            <button id="btn-toggle-drawer" class="icon-button" title="Open Sessions">
+                <span>☰</span>
+            </button>
+            
+            <div class="header-title-container">
+                <h1 id="active-session-title">OmniMind AI</h1>
+                <div class="header-model-selector-wrapper">
+                    <span class="status-dot online"></span>
+                    <select id="model-selector" class="model-dropdown">
+                        <option value="openrouter/free">⚡ OpenRouter Auto-Free</option>
+                        <option value="google/gemma-4-31b-it:free">Gemma 31B (Free)</option>
+                        <option value="nvidia/nemotron-3-nano-30b-a3b:free">Nemotron 30B (Free)</option>
+                        <option value="auto">Gemini Flash (Free Tier)</option>
+                        <option value="local">Offline Local SLM</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="header-right-actions">
+                <label class="toggle-switch-label" title="Incognito Mode (Zero Trace)">
+                    <input type="checkbox" id="toggle-incognito">
+                    <span class="toggle-slider"></span>
+                    <span class="toggle-text">🕶️</span>
+                </label>
+                <button id="btn-open-settings" class="icon-button" title="Settings">⚙️</button>
+            </div>
+        </header>
+
+        <!-- Main Body: Sidebar Drawer & Chat Viewport -->
+        <div class="main-layout">
+            
+            <!-- Sidebar Drawer -->
+            <aside id="sidebar-drawer" class="sidebar-drawer">
+                <div class="drawer-header">
+                    <h2>Chat Sessions</h2>
+                    <button id="btn-new-chat" class="btn-primary">+ New Chat</button>
+                </div>
+
+                <div class="persona-selector-wrapper" style="padding: 10px 16px;">
+                    <label style="font-size:11px; color:var(--text-muted);">Active Persona:</label>
+                    <select id="persona-selector" class="text-input" style="margin-top:4px;"></select>
+                </div>
+
+                <div id="sessions-list" class="sessions-list"></div>
+
+                <div class="drawer-footer">
+                    <button id="btn-view-memory" class="drawer-footer-btn">🧠 Memory Context</button>
+                    <button id="btn-view-connectors" class="drawer-footer-btn">🔌 Connectors & Tuning</button>
+                </div>
+            </aside>
+            <div id="drawer-backdrop" class="drawer-backdrop"></div>
+
+            <!-- Chat Stream Workspace -->
+            <main class="chat-workspace">
+                <div id="worker-cards-container" class="worker-cards-container"></div>
+
+                <div id="chat-stream" class="chat-stream">
+                    <div class="welcome-card">
+                        <div class="welcome-icon">🧠</div>
+                        <h2>OmniMind AI Hub</h2>
+                        <p>Universal AI orchestrator, deep research engine, and native full-duplex voice assistant.</p>
+                        <div class="quick-chips">
+                            <button class="chip-btn" onclick="window.insertQuickText('/research Quantum Computing Breakthroughs')">🔍 /research Quantum</button>
+                            <button class="chip-btn" onclick="window.insertQuickText('/compare Explain quantum mechanics vs relativity')">⚡ /compare Physics</button>
+                            <button class="chip-btn" onclick="window.insertQuickText('Generate an image of a cybernetic neon panther in rain')">🎨 Free Image</button>
+                            <button class="chip-btn" onclick="window.openVoiceModal()">🎙️ Voice Assistant</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Attachment & Input Control Area -->
+                <div class="input-panel">
+                    <div id="mention-popup" class="popup-menu hidden">
+                        <div class="popup-title">Direct Model Mention (@)</div>
+                        <div id="mention-items" class="popup-items"></div>
+                    </div>
+
+                    <div id="command-popup" class="popup-menu hidden">
+                        <div class="popup-title">Quick Commands (/)</div>
+                        <div class="popup-items">
+                            <div class="popup-item" onclick="window.selectCommand('/research')">
+                                <strong>/research</strong> <span>Deep multi-source web research with citations</span>
+                            </div>
+                            <div class="popup-item" onclick="window.selectCommand('/compare')">
+                                <strong>/compare</strong> <span>Parallel free model comparison & judge</span>
+                            </div>
+                            <div class="popup-item" onclick="window.selectCommand('/enhance')">
+                                <strong>/enhance</strong> <span>Auto-expand media prompt</span>
+                            </div>
+                            <div class="popup-item" onclick="window.selectCommand('/clear')">
+                                <strong>/clear</strong> <span>Clear current session messages</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form id="chat-form" class="chat-form">
+                        <div class="input-toolbar">
+                            <button type="button" id="btn-attach-file" class="toolbar-btn" title="Attach File">📎</button>
+                            <button type="button" id="btn-voice-input" class="toolbar-btn" title="Voice Mode">🎙️</button>
+                            <label class="toggle-switch-label" title="Auto-Enhance Media Prompts">
+                                <input type="checkbox" id="toggle-prompt-enhancer" checked>
+                                <span class="toggle-slider"></span>
+                                <span class="toggle-text">Enhance 🎨</span>
+                            </label>
+                        </div>
+
+                        <div class="textarea-wrapper">
+                            <textarea id="user-input" placeholder="Ask OmniMind... (Use /research, /compare, @model)" rows="1"></textarea>
+                            <button type="submit" id="btn-send" class="btn-send" title="Send Message">➔</button>
+                        </div>
+                    </form>
+                </div>
+            </main>
+        </div>
+
+        <!-- Interactive Voice Mode Fullscreen Overlay -->
+        <div id="voice-modal" class="modal-overlay hidden">
+            <div class="voice-modal-window">
+                <button id="btn-close-voice" class="icon-button close-voice-btn">✖</button>
+                <div id="voice-orb" class="voice-orb idle">
+                    <div class="orb-core"></div>
+                    <div class="orb-wave"></div>
+                </div>
+                <div id="voice-status-text" class="voice-status-text">Tap mic to speak to OmniMind</div>
+                <button id="btn-trigger-mic" class="btn-voice-large">🎙️</button>
+            </div>
+        </div>
+
+        <!-- Fullscreen Canvas Modal Overlay (Claude Artifacts Style) -->
+        <div id="canvas-modal" class="modal-overlay hidden">
+            <div class="modal-window canvas-modal-window">
+                <div class="modal-header">
+                    <span class="modal-title">⚡ Interactive Canvas Sandbox</span>
+                    <div class="modal-actions">
+                        <button id="btn-refresh-canvas" class="icon-button">🔄</button>
+                        <button id="btn-close-canvas" class="icon-button">✖</button>
+                    </div>
+                </div>
+                <div class="modal-body modal-body-canvas">
+                    <iframe id="canvas-iframe" class="canvas-iframe" sandbox="allow-scripts allow-modals allow-forms allow-same-origin"></iframe>
+                </div>
+                <div class="canvas-refinement-bar">
+                    <input type="text" id="canvas-refine-input" placeholder="Iterative Refinement (e.g. 'Add dark theme', 'Add download button')..." class="text-input" />
+                    <button id="btn-send-canvas-refine" class="btn-primary">Refine ⚡</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Modal -->
+        <div id="settings-modal" class="modal-overlay hidden">
+            <div class="modal-window">
+                <div class="modal-header">
+                    <h2>⚙️ Settings & Free API Keys</h2>
+                    <button id="btn-close-settings" class="icon-button">✖</button>
+                </div>
+                <div class="modal-body">
+                    <div class="settings-section">
+                        <h3>🔑 API Credentials (Optional)</h3>
+                        <label for="input-openrouter-key">OpenRouter Free Key:</label>
+                        <input type="password" id="input-openrouter-key" placeholder="sk-or-v1-..." class="text-input">
+
+                        <label for="input-gemini-key" style="margin-top: 10px;">Gemini Free Tier Key:</label>
+                        <input type="password" id="input-gemini-key" placeholder="AIzaSy..." class="text-input">
+                    </div>
+
+                    <div class="settings-section">
+                        <h3>🔌 Connectors & Tuning Sliders</h3>
+                        <div id="connectors-list-ui" class="connectors-list-ui"></div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3>🧠 Long-Term Memory</h3>
+                        <div id="memory-list-ui" class="memory-list-ui"></div>
+                        <button id="btn-clear-memory" class="btn-danger">Clear Extracted Memory Context</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
