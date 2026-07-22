@@ -24,7 +24,8 @@ class CanvasBottomSheet : BottomSheetDialogFragment() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate()
+        // FIX: Passed savedInstanceState into the super call
+        super.onCreate(savedInstanceState)
         htmlContent = arguments?.getString("htmlContent") ?: ""
     }
 
