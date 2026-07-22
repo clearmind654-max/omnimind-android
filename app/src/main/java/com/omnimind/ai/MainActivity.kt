@@ -21,7 +21,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate()
+        // FIX 1: Passed savedInstanceState into the super call
+        super.onCreate(savedInstanceState)
 
         handleIncomingIntent(intent)
 
@@ -139,7 +140,8 @@ class MainActivity : AppCompatActivity() {
                 if (webView.canGoBack()) {
                     webView.goBack()
                 } else {
-                    super.onBackPressed()
+                    // FIX 2: Replaced illegal 'super' callback with 'finish()'
+                    this@MainActivity.finish()
                 }
             }
         }
